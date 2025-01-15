@@ -1,6 +1,10 @@
 package main
 
+import "database"
+
 main :: proc() {
+    database.create_database("database.txt")
+
     // show options
         // 1. add new book
         // 2. search book
