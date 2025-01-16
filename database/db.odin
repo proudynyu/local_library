@@ -4,6 +4,9 @@ import "core:fmt"
 import "core:os"
 import "core:path/filepath"
 import "core:bytes"
+import "core:strings"
+
+import "../books"
 
 // database for now will be just a txt file
 create_database :: proc(path: string) {
@@ -15,7 +18,7 @@ create_database :: proc(path: string) {
 
         buff: bytes.Buffer
         defer bytes.buffer_destroy(&buff)
-        bytes.buffer_init_string(&buff, "testing")
+        bytes.buffer_init_string(&buff, "row,name,author\n")
         werr := os.write_entire_file_or_err(path, bytes.buffer_to_bytes(&buff))
         if werr != nil {
             fmt.println("An error has occured creating the file: ", path)
@@ -36,4 +39,18 @@ read_database :: proc(path: string) -> []byte {
         os.exit(1)
     }
     return file
+}
+
+find_item_on_database :: proc(db: ^[]byte, name: string) -> string {
+    file := string(db^)
+    lines: []string = strings.split(file, "\n")
+
+    for line in lines {
+        splitted := strings.split(line, ",")[1]
+        if strings.contains(splitted, name) {
+            return line
+        }
+    }
+
+    return ""
 }
