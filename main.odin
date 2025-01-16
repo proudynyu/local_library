@@ -3,7 +3,7 @@ package main
 import "database"
 
 main :: proc() {
-    database.create_database("database.txt")
+    database.create_database("db.txt")
 
     // show options
         // 1. add new book
