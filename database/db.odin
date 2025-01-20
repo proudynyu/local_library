@@ -32,17 +32,23 @@ create_database :: proc(path: string) {
     return
 }
 
-read_database :: proc(path: string) -> []byte {
-    file, err := os.read_entire_file(path)
-    if err {
+read_database :: proc(path: string) -> os.Handle {
+    file, err := os.open(path)
+    if err != nil {
         fmt.println("Was not possible to read the database: ", path)
         os.exit(1)
     }
     return file
 }
 
-find_item_on_database :: proc(db: ^[]byte, name: string) -> string {
-    file := string(db^)
+find_item_on_database :: proc(db: os.Handle, name: string) -> string {
+    readable, err := os.read_entire_file_from_handle_or_err(db)
+    if err != nil {
+        fmt.println("Was not possible to open the database")
+        os.exit(1)
+    }
+
+    file := string(readable)
     lines: []string = strings.split(file, "\n")
 
     for line in lines {
@@ -53,4 +59,13 @@ find_item_on_database :: proc(db: ^[]byte, name: string) -> string {
     }
 
     return ""
+}
+
+create_registry :: proc(db: os.Handle, book: []byte) -> bool {
+    _, err := os.write(db, book)
+    if err != nil {
+        fmt.println("Could not write data to the database")
+        os.exit(1)
+    }
+    return true
 }
