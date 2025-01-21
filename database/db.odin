@@ -33,20 +33,18 @@ create_database :: proc(path: string) {
 }
 
 read_database :: proc(path: string) -> os.Handle {
-    file, err := os.open(path)
-    if err != nil {
-        fmt.println("Was not possible to read the database: ", path)
-        os.exit(1)
+    mode: int
+    when ODIN_OS != .Windows {
+        mode = os.S_IRUSR|os.S_IWUSR|os.S_IRGRP|os.S_IROTH
     }
+    file, err := os.open(path, os.O_APPEND, mode)
+    fmt.assertf(err == nil, "Was not possible to read the database3: %v", err)
     return file
 }
 
 find_item_on_database :: proc(db: os.Handle, name: string) -> string {
     readable, err := os.read_entire_file_from_handle_or_err(db)
-    if err != nil {
-        fmt.println("Was not possible to open the database")
-        os.exit(1)
-    }
+    fmt.assertf(err == nil, "Was not possible to open the database3: %v", err)
 
     file := string(readable)
     lines: []string = strings.split(file, "\n")
@@ -63,9 +61,6 @@ find_item_on_database :: proc(db: os.Handle, name: string) -> string {
 
 create_registry :: proc(db: os.Handle, book: []byte) -> bool {
     _, err := os.write(db, book)
-    if err != nil {
-        fmt.println("Could not write data to the database")
-        os.exit(1)
-    }
+    fmt.assertf(err == nil, "Error writing data to database: %v", err)
     return true
 }
