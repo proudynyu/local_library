@@ -37,7 +37,8 @@ read_database :: proc(path: string) -> os.Handle {
     when ODIN_OS != .Windows {
         mode = os.S_IRUSR|os.S_IWUSR|os.S_IRGRP|os.S_IROTH
     }
-    file, err := os.open(path, os.O_APPEND, mode)
+    flag := os.O_APPEND|os.O_RDWR
+    file, err := os.open(path, flag, mode)
     fmt.assertf(err == nil, "Was not possible to read the database3: %v", err)
     return file
 }
@@ -60,6 +61,7 @@ find_item_on_database :: proc(db: os.Handle, name: string) -> string {
 }
 
 create_registry :: proc(db: os.Handle, book: []byte) -> bool {
+    fmt.assertf(db > 0, "Invalid database handle passed to create_registry")
     _, err := os.write(db, book)
     fmt.assertf(err == nil, "Error writing data to database: %v", err)
     return true
