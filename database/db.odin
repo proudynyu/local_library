@@ -39,20 +39,24 @@ read_database :: proc(path: string) -> os.Handle {
     }
     flag := os.O_APPEND|os.O_RDWR
     file, err := os.open(path, flag, mode)
-    fmt.assertf(err == nil, "Was not possible to read the database3: %v", err)
+    fmt.assertf(err == nil, "Was not possible to read the database: %v", err)
     return file
 }
 
 find_item_on_database :: proc(db: os.Handle, name: string) -> string {
+    fmt.println(db)
     readable, err := os.read_entire_file_from_handle_or_err(db)
-    fmt.assertf(err == nil, "Was not possible to open the database3: %v", err)
+    fmt.assertf(err == nil, "Was not possible to open the database: %v", err)
 
     file := string(readable)
     lines: []string = strings.split(file, "\n")
+    defer delete(file)
+    defer delete(lines)
 
     for line in lines {
-        splitted := strings.split(line, ",")[1]
-        if strings.contains(splitted, name) {
+        has_sub := strings.contains(line, name)
+        fmt.println("line: ", line, "has_sub: ", has_sub, "name: ", name)
+        if has_sub {
             return line
         }
     }

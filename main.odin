@@ -1,25 +1,45 @@
 package main
 
-import "core:fmt"
-import "core:os"
+import rl "vendor:raylib"
 
-import "database"
-import "books"
+WIDTH :: 800
+HEIGHT :: 600
+TITLE :: "Library"
 
-database_path :: "db.txt"
+Arena :: struct {
+    initial_screen: bool,
+    search_screen: bool,
+    create_screen: bool,
+}
+
+init_text :: proc() {
+}
+
+search_bar :: proc() {
+}
+
+draw_screens :: proc(arena: ^Arena) {
+}
 
 main :: proc() {
-    database.create_database(database_path)
-    file := database.read_database(database_path)
-    defer os.close(file)
+    rl.InitWindow(WIDTH, HEIGHT, TITLE)
+    defer rl.CloseWindow()
 
-    new_book := books.create_new_book("test", "1", "author")
-    str_book := books.book_registry(new_book)
+    arena: Arena = {
+        initial_screen = true,
+        search_screen = false,
+        create_screen = false
+    }
 
-    database.create_registry(file, str_book)
+    rl.SetTargetFPS(60)
+    for !rl.WindowShouldClose() {
+        rl.BeginDrawing()
+        defer rl.EndDrawing()
 
-    // show options
-        // 1. add new book
-        // 2. search book
-        // 3. delete book
+        {
+            draw_screens(&arena)
+        }
+
+        rl.ClearBackground(rl.WHITE)
+    }
 }

@@ -23,7 +23,8 @@ book_registry :: proc(book: ^Book) -> []byte {
     name: = book.name
     author: = book.author
 
-    arr := []string{row, name, author, "\n"}
+    arr := []string{row, name, author}
     reg := strings.join(arr, ",")
+    registry := strings.join([]string{reg, "\n"}, "")
     return transmute([]byte)reg
 }
