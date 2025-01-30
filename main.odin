@@ -15,16 +15,17 @@ Vector :: struct {
     y: i32
 }
 
-Arena :: enum {
-    initial,
-    search,
-    create
-}
+Arena :: enum { initial, search, create }
+Screen :: struct { active: Arena }
+
+screen: Screen = {active = Arena.initial}
 
 create_button :: proc(
+    option: i32,
     text: cstring, 
     font_size: i32, 
-    position: Vector
+    position: Vector,
+    selected: ^i32
 ) {
     string_len := rl.MeasureText(text, font_size)
     distance := font_size / 2
@@ -36,10 +37,15 @@ create_button :: proc(
         height =    cast(f32)(font_size + distance)
     }
 
+
     button_color := rl.BLACK
     mouse_position := rl.GetMousePosition()
     if rl.CheckCollisionPointRec(mouse_position, rect) {
         button_color = rl.RED
+
+        if rl.IsMouseButtonPressed(.LEFT) {
+            selected^ = option
+        }
     }
 
     rl.DrawRectangleRec(rect, button_color)
@@ -61,43 +67,24 @@ init_text :: proc() {
     color := rl.BLACK
 
     rl.DrawText(intro, pos.x, pos.y, font_size, color)
-    count: i32 = 1
+    option: i32 = 1
+    selected: i32 = 1
     for text in options {
-        delta := distance * count
+        delta := distance * option + 1
         position: Vector = {pos.x, pos.y + delta}
-        create_button(text, font_size, position)
-        count += 1
+        create_button(option, text, font_size, position, &selected)
+        option += 1
     }
 
-    // buffer: [16]byte
-    // n, err := os.read(os.stdin, buffer[:])
-    // fmt.assertf(err == nil, "Failed to read data")
-    //
-    // b: bytes.Buffer
-    // bytes.buffer_init(&b, buffer[:n])
-    // value := strings.trim_space(bytes.buffer_to_string(&b))
-    //
-    // options := []string{"1","2"}
-    //
-    //     switch value {
-    //     case "1":
-    //         // book := search(&file)
-    //         fmt.println(book)
-    //     case "2":
-    //         // success := create(&file)
-    //         if !success {
-    //             fmt.println("A problem occur when saving the book to the db")
-    //             os.close(1)
-    //             os.exit(1)
-    //         }
-    //     case "3":
-    //         fmt.println("See you")
-    //         // defer os.close(file)
-    //         return
-    //     case:
-    //         fmt.println("This answer is not valid!")
-    //     }
-    //
+    if selected == 1 {
+        screen.active = Arena.search
+    } 
+    if selected == 2 {
+        screen.active = Arena.create
+    } 
+    if selected == 3{
+        screen.active = Arena.initial
+    }
 }
 
 search_results :: proc() {
@@ -106,8 +93,8 @@ search_results :: proc() {
 create_reg :: proc() {
 }
 
-draw_screens :: proc(arena: Arena) {
-    switch arena {
+draw_screens :: proc() {
+    switch screen.active {
     case .initial:
         init_text()
     case .search:
@@ -124,7 +111,6 @@ main :: proc() {
     rl.InitWindow(WIDTH, HEIGHT, TITLE)
     defer rl.CloseWindow()
 
-    arena: Arena 
     rl.SetTargetFPS(60)
     for !rl.WindowShouldClose() {
         rl.BeginDrawing()
@@ -132,7 +118,7 @@ main :: proc() {
 
 
         {
-            draw_screens(arena)
+            draw_screens()
         }
 
         rl.ClearBackground(rl.GRAY)
