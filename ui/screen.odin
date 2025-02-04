@@ -4,7 +4,7 @@ import "core:os"
 import "core:fmt"
 import rl "vendor:raylib"
 
-import config "../config"
+import "../config"
 import "../ui"
 import "../utils"
 
@@ -36,7 +36,7 @@ init_text :: proc() {
     }
 
     pos: utils.Vector = {config.width / 4, config.heigth / 6}
-    font_size: i32 = 32
+    font_size: i32 = config.font_size * 2
     distance := font_size * 2
     color := rl.BLACK
 
@@ -72,5 +72,24 @@ search_results :: proc() {
 }
 
 create_reg :: proc() {
+    using config
+    label: cstring = "Name"
+    size: utils.Vector = {
+            x = 300,
+            y = 40
+    }
+    position: utils.Vector = {
+        x = config.width/2 - size.x/2,
+        y = config.heigth/2 - size.y/2
+    }
+    margin_bottom: i32 = 10
+    color: rl.Color = rl.BLACK
 
+    input(
+        label,
+        position,
+        size,
+        margin_bottom,
+        color
+    )
 }
