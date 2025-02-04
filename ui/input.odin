@@ -1,26 +1,22 @@
 package ui
 
-import "base:builtin"
-import "core:unicode/utf8"
-import "core:strings"
 import rl "vendor:raylib"
 
 import "../utils"
 import "../config"
-
-max_input_char :: 20
+import "../state"
 
 input :: proc(
     label: cstring,
     position: utils.Vector,
     size: utils.Vector,
     margin_bottom: i32,
-    color: rl.Color
+    color: rl.Color,
+    form_state: ^state.Form
 ) {
     using config
-    text := make([]rune, max_input_char)
-    text_len := len(text)
-    is_active := true
+    text_len := len(form_state.name)
+    padding: i32 = 1
 
     rect: rl.Rectangle = {
         x =         cast(f32)position.x,
@@ -29,33 +25,33 @@ input :: proc(
         height =    cast(f32)size.y
     }
 
-    if is_active {
+    if state.form_state.name_field_active {
         key := rl.GetCharPressed()
         for key > 0 {
-            if text_len < max_input_char && key >= 32 && key <= 126 {
-                text[text_len] = key
-                text_len += 1
+            if text_len < state.MAX_INPUT_CHAR && key >= 32 && key <= 126 {
+                append_elem(&form_state.name, key)
             }
             key = rl.GetCharPressed()
 
             if rl.GetKeyPressed() == rl.KeyboardKey.BACKSPACE {
-                text_len -= 1
+                pop(&form_state.name)
             }
         }
-
     }
 
     
     mouse_position := rl.GetMousePosition()
     if rl.CheckCollisionPointRec(mouse_position, rect) {
         if rl.IsMouseButtonPressed(.LEFT) {
-            is_active = true
+            state.form_state.name_field_active = true
         }
     } else if !rl.CheckCollisionPointRec(mouse_position, rect) && rl.IsMouseButtonPressed(.LEFT) {
-        is_active = false
+        state.form_state.name_field_active = false
     }
 
     rl.DrawRectangleRec(rect, rl.WHITE)
-    t := strings.clone_to_cstring(utf8.runes_to_string(text))
-    rl.DrawText(t, cast(i32)rect.x, cast(i32)rect.y, config.font_size, color)
+    // need to transform the [dynamic]rune to string
+    // r := utf8.runes_to_string(form_state.name)
+    // t := strings.clone_to_cstring(r)
+    // rl.DrawText(t, cast(i32)rect.x + padding, cast(i32)rect.y + padding, config.font_size, color)
 }

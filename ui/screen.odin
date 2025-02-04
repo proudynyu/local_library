@@ -7,10 +7,15 @@ import rl "vendor:raylib"
 import "../config"
 import "../ui"
 import "../utils"
+import "../state"
 
 Arena :: enum { initial, search, create }
 
 active_screen: Arena = Arena.initial
+
+Form :: struct {
+    name: []rune
+}
 
 draw_screens :: proc() {
     switch ui.active_screen {
@@ -90,6 +95,7 @@ create_reg :: proc() {
         position,
         size,
         margin_bottom,
-        color
+        color,
+        &state.form_state
     )
 }
