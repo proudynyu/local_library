@@ -78,22 +78,38 @@ search_results :: proc() {
 
 create_reg :: proc() {
     using config
-    label: cstring = "Name"
-    size: utils.Vector = {
-            x = 300,
-            y = 40
-    }
-    position: utils.Vector = {
-        x = config.width/2 - size.x/2,
-        y = config.heigth/2 - size.y/2
-    }
     margin_bottom: i32 = 10
     color: rl.Color = rl.BLACK
 
+    input_size: utils.Vector = {
+            x = 300,
+            y = 40
+    }
+
+    name_label: cstring = "Name"
+    name_field: utils.Vector = {
+        x = config.width/2 - input_size.x/2,
+        y = input_size.y/2
+    }
+    author_label: cstring = "Author"
+    author_field: utils.Vector = {
+        x = config.width/2 - input_size.x/2,
+        y = input_size.y/2 * 2 + margin_bottom + input_size.y
+    }
+
     input(
-        label,
-        position,
-        size,
+        name_label,
+        name_field,
+        input_size,
+        margin_bottom,
+        color,
+        &state.form_state
+    )
+
+    input(
+        author_label,
+        author_field,
+        input_size,
         margin_bottom,
         color,
         &state.form_state

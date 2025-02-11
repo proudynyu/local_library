@@ -1,5 +1,8 @@
 package ui
 
+import "core:unicode/utf8"
+import "core:strings"
+import "core:fmt"
 import rl "vendor:raylib"
 
 import "../utils"
@@ -15,12 +18,25 @@ input :: proc(
     form_state: ^state.Form
 ) {
     using config
+    using utils
     text_len := len(form_state.name)
-    padding: i32 = 1
+    padding: i32 = 8
 
-    rect: rl.Rectangle = {
+    container: rl.Rectangle = {
         x =         cast(f32)position.x,
         y =         cast(f32)position.y,
+        width =     cast(f32)size.x,
+        height =    cast(f32)size.y + cast(f32)(config.font_size + padding)
+    }
+
+    input_label: Vector = {
+        x = cast(i32)container.x,
+        y = cast(i32)container.y
+    }
+
+    input_field: rl.Rectangle = {
+        x =         container.x,
+        y =         container.y + cast(f32)(config.font_size + padding),
         width =     cast(f32)size.x,
         height =    cast(f32)size.y
     }
@@ -33,25 +49,27 @@ input :: proc(
             }
             key = rl.GetCharPressed()
 
-            if rl.GetKeyPressed() == rl.KeyboardKey.BACKSPACE {
-                pop(&form_state.name)
-            }
+        }
+
+        if rl.GetKeyPressed() == rl.KeyboardKey.BACKSPACE {
+            pop_safe(&form_state.name)
         }
     }
 
     
     mouse_position := rl.GetMousePosition()
-    if rl.CheckCollisionPointRec(mouse_position, rect) {
+    if rl.CheckCollisionPointRec(mouse_position, input_field) {
         if rl.IsMouseButtonPressed(.LEFT) {
             state.form_state.name_field_active = true
         }
-    } else if !rl.CheckCollisionPointRec(mouse_position, rect) && rl.IsMouseButtonPressed(.LEFT) {
+    } else if !rl.CheckCollisionPointRec(mouse_position, input_field) && rl.IsMouseButtonPressed(.LEFT) {
         state.form_state.name_field_active = false
     }
 
-    rl.DrawRectangleRec(rect, rl.WHITE)
-    // need to transform the [dynamic]rune to string
-    // r := utf8.runes_to_string(form_state.name)
-    // t := strings.clone_to_cstring(r)
-    // rl.DrawText(t, cast(i32)rect.x + padding, cast(i32)rect.y + padding, config.font_size, color)
+    rl.DrawText(label, input_label.x, input_label.y, config.font_size, rl.BLACK)
+    rl.DrawRectangleRec(input_field, rl.WHITE)
+
+    r := utf8.runes_to_string(form_state.name[:])
+    t := strings.clone_to_cstring(r)
+    rl.DrawText(t, cast(i32)input_field.x + padding, cast(i32)input_field.y + padding, cast(i32)input_field.height - padding, color)
 }
