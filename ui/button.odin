@@ -1,9 +1,16 @@
 package ui
 
 import "core:os"
+import "core:strings"
+import "core:fmt"
+import "core:unicode/utf8"
 import rl "vendor:raylib"
 
+import "../books"
 import "../utils"
+import "../state"
+import "../config"
+import db "../database"
 
 onclick_options_button :: proc(option: i32) {
     if option == 1 {
@@ -76,6 +83,55 @@ back_button :: proc() {
     if rl.CheckCollisionPointRec(mouse_position, rect) {
         if rl.IsMouseButtonPressed(.LEFT) {
             active_screen = Arena.initial
+            state.form_state = {}
         }
     }
+}
+
+create_reg_button :: proc() {
+    using config
+    color := rl.BLACK
+    thickeness: f32 = 2
+    offset: i32 = 5
+    font_size: i32 = 16
+    text: cstring = "Registrar"
+    string_len := rl.MeasureText(text, font_size)
+    distance := font_size / 2
+
+    rect: rl.Rectangle = {
+        x = cast(f32)(config.width - (string_len + distance) - 10),
+        y = cast(f32)(config.heigth - 40),
+        width =     cast(f32)(string_len + distance),
+        height =    cast(f32)(font_size + distance)
+    }
+
+    rl.DrawRectangleRec(rect, rl.WHITE)
+    rl.DrawRectangleLinesEx(rect, thickeness, color)
+    rl.DrawText(text,  (cast(i32)rect.x) + offset, (cast(i32)rect.y) + offset, font_size, color)
+
+    mouse_position := rl.GetMousePosition()
+    if rl.CheckCollisionPointRec(mouse_position, rect) {
+        if rl.IsMouseButtonPressed(.LEFT) {
+            if len(state.form_state.name) <= 0 || len(state.form_state.author) <= 0 {
+                return
+            }
+            register()
+            active_screen = Arena.initial
+            state.form_state = {}
+        }
+    }
+}
+
+register :: proc() {
+    name_v := utf8.runes_to_string(state.form_state.name[:])
+    author_v := utf8.runes_to_string(state.form_state.author[:])
+    new_book := books.create_new_book(name_v, "1", author_v)
+    book_registry := books.book_registry(new_book)
+
+    response := db.create_registry(state.database, book_registry)
+    if !response {
+        fmt.println("An problem has occured trying to save the new book registry")
+    }
+
+    fmt.println("book was saved with success!")
 }

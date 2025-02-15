@@ -8,8 +8,11 @@ import "core:strings"
 
 import "../books"
 
+database_url :: "db.txt"
+
 // database for now will be just a txt file
-create_database :: proc(path: string) {
+create_database :: proc() {
+    path := database_url
     file, err := os.open(path)
     defer os.close(file)
     if err != nil {
@@ -32,7 +35,8 @@ create_database :: proc(path: string) {
     return
 }
 
-read_database :: proc(path: string) -> os.Handle {
+read_database :: proc() -> os.Handle {
+    path := database_url
     mode: int
     when ODIN_OS != .Windows {
         mode = os.S_IRUSR|os.S_IWUSR|os.S_IRGRP|os.S_IROTH

@@ -15,11 +15,12 @@ input :: proc(
     size: utils.Vector,
     margin_bottom: i32,
     color: rl.Color,
-    form_state: ^state.Form
+    form_state_name: ^[dynamic]rune,
+    form_state_activate: ^bool
 ) {
     using config
     using utils
-    text_len := len(form_state.name)
+    text_len := len(form_state_name)
     padding: i32 = 8
 
     container: rl.Rectangle = {
@@ -41,18 +42,18 @@ input :: proc(
         height =    cast(f32)size.y
     }
 
-    if state.form_state.name_field_active {
+    if form_state_activate^ {
         key := rl.GetCharPressed()
         for key > 0 {
             if text_len < state.MAX_INPUT_CHAR && key >= 32 && key <= 126 {
-                append_elem(&form_state.name, key)
+                append_elem(form_state_name, key)
             }
             key = rl.GetCharPressed()
 
         }
 
         if rl.GetKeyPressed() == rl.KeyboardKey.BACKSPACE {
-            pop_safe(&form_state.name)
+            pop_safe(form_state_name)
         }
     }
 
@@ -60,16 +61,16 @@ input :: proc(
     mouse_position := rl.GetMousePosition()
     if rl.CheckCollisionPointRec(mouse_position, input_field) {
         if rl.IsMouseButtonPressed(.LEFT) {
-            state.form_state.name_field_active = true
+            form_state_activate^ = true
         }
     } else if !rl.CheckCollisionPointRec(mouse_position, input_field) && rl.IsMouseButtonPressed(.LEFT) {
-        state.form_state.name_field_active = false
+        form_state_activate^ = false
     }
 
     rl.DrawText(label, input_label.x, input_label.y, config.font_size, rl.BLACK)
     rl.DrawRectangleRec(input_field, rl.WHITE)
 
-    r := utf8.runes_to_string(form_state.name[:])
+    r := utf8.runes_to_string(form_state_name[:])
     t := strings.clone_to_cstring(r)
     rl.DrawText(t, cast(i32)input_field.x + padding, cast(i32)input_field.y + padding, cast(i32)input_field.height - padding, color)
 }

@@ -9,12 +9,17 @@ import rl "vendor:raylib"
 import config "config"
 import "ui"
 import "utils"
+import "database"
+import "state"
 
-main :: proc() {
+init :: proc() {
     using config
+    database.create_database()
+    state.database = database.read_database()
     rl.InitWindow(config.width, config.heigth, config.title)
-    defer rl.CloseWindow()
+}
 
+update :: proc() {
     rl.SetTargetFPS(60)
     for !rl.WindowShouldClose() {
         rl.BeginDrawing()
@@ -29,4 +34,11 @@ main :: proc() {
 
         rl.ClearBackground(rl.GRAY)
     }
+}
+
+main :: proc() {
+    init()
+    defer rl.CloseWindow()
+
+    update()
 }

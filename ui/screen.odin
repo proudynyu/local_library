@@ -103,7 +103,8 @@ create_reg :: proc() {
         input_size,
         margin_bottom,
         color,
-        &state.form_state
+        &state.form_state.name,
+        &state.form_state.name_field_active
     )
 
     input(
@@ -112,6 +113,9 @@ create_reg :: proc() {
         input_size,
         margin_bottom,
         color,
-        &state.form_state
+        &state.form_state.author,
+        &state.form_state.author_field_active
     )
+
+    create_reg_button()
 }
