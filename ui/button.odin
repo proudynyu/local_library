@@ -84,6 +84,7 @@ back_button :: proc() {
         if rl.IsMouseButtonPressed(.LEFT) {
             active_screen = Arena.initial
             state.form_state = {}
+            state.search_state = {}
         }
     }
 }

@@ -18,4 +18,11 @@ form_state: Form = {
     author_field_active = false,
 }
 
+Search :: struct {
+    query: [dynamic]rune,
+    active: bool
+}
+
+search_state: Search = {}
+
 database: os.Handle = {}

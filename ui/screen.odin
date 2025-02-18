@@ -13,10 +13,6 @@ Arena :: enum { initial, search, create }
 
 active_screen: Arena = Arena.initial
 
-Form :: struct {
-    name: []rune
-}
-
 draw_screens :: proc() {
     switch ui.active_screen {
     case .initial:
@@ -60,9 +56,13 @@ search_results :: proc() {
     search_bar_width: f32 = 400
     search_bar_heigth: i32 = 40
     offset: f32 = 16
+    input_size: utils.Vector = {
+            x = 300,
+            y = 40
+    }
     position: utils.Vector = {
-        x = config.width / 4,
-        y = cast(i32)(config.heigth / 2 - search_bar_heigth / 2)
+        x = config.width / 2 - input_size.x / 2,
+        y = 10
     }
 
     search_bar: rl.Rectangle = {
@@ -72,8 +72,8 @@ search_results :: proc() {
         height = cast(f32)search_bar_heigth
     }
 
-    rl.DrawRectangleRec(search_bar, rl.WHITE)
-    rl.DrawRectangleLines(position.x - 1, position.y - 1, cast(i32)search_bar.width + 1, cast(i32)search_bar.height + 1, rl.BLACK)
+    title: cstring = "Search"
+    input(title, position, input_size, 0, rl.BLACK, &state.search_state.query, &state.search_state.active)
 }
 
 create_reg :: proc() {
